@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#18264a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Martur Guia Calc">
+<link rel="manifest" href="manifest.json">
+<title>Martur Guia Calc</title>
+<style>
+:root{--navy:#18264a;--purple:#43227d;--yellow:#fff000;--bg:#f4f6fa;--card:#fff;--muted:#697386;--line:#e2e5eb;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#202124;font-family:Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:22px 16px;text-align:center;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:25px}header p{margin:6px 0 0;opacity:.85;font-size:13px}
+main{max-width:920px;margin:auto;padding:14px}
+.card{background:var(--card);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 18px #17203b12}
+h2{margin:0 0 14px;color:var(--purple);font-size:20px}
+label{font-weight:700;display:block;margin:10px 0 6px}
+input,select,textarea,button{width:100%;font:inherit;border-radius:11px;padding:12px;border:1px solid var(--line)}
+textarea{min-height:72px;resize:vertical}
+button{border:0;background:var(--purple);color:#fff;font-weight:700;cursor:pointer}
+button.yellow{background:var(--yellow);color:#171717}button.light{background:#eee;color:#222}button.red{background:#fff0ef;color:var(--danger)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hidden{display:none}.muted{color:var(--muted);font-size:13px}
+.price{font-size:31px;font-weight:800;color:var(--purple)}
+.result{background:#f8f4ff;border:2px solid #ded1f5;padding:15px;border-radius:14px;margin-top:14px}
+.badge{display:inline-block;background:var(--yellow);padding:5px 9px;border-radius:99px;font-size:12px;font-weight:800}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.nav button{background:#fff;color:var(--purple);border:1px solid var(--line);padding:10px 6px;font-size:12px}.nav button.active{background:var(--purple);color:#fff}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}.item strong{color:var(--purple)}
+.total{font-size:25px;font-weight:800;text-align:right;color:var(--purple);margin-top:12px}
+.actions{display:flex;gap:8px}.actions button{flex:1}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;white-space:nowrap}th{background:#fafafa}
+.tab{display:none}.tab.active{display:block}
+.smallbtn{width:auto;padding:8px 10px;font-size:12px}
+@media(max-width:650px){.grid,.grid3{grid-template-columns:1fr}.nav{grid-template-columns:repeat(2,1fr)}header{position:relative}}
+</style>
+</head>
+<body>
+<header>
+<h1>📊 Martur Guia Calc</h1>
+<p>Calculadora e gestão de escala • Tarifário Guia de Turismo MARTUR 2022</p>
+</header>
+<main>
+<div class="nav">
+<button class="active" onclick="showTab('calc',this)">🧮 Calcular</button>
+<button onclick="showTab('escala',this)">📋 Minha Escala</button>
+<button onclick="showTab('hist',this)">🗓️ Histórico</button>
+<button onclick="showTab('tar',this)">📚 Tarifário</button>
+</div>
+
+<section id="calc" class="tab active">
+<div class="card">
+<h2>🧮 Calcular serviço</h2>
+<div class="grid">
+<div><label>Data</label><input id="date" type="date"></div>
+<div><label>Horário</label><input id="time" type="time"></div>
+</div>
+<label>Nome do cliente / grupo</label><input id="client" placeholder="Ex.: Grupo Silva">
+<label>Hotel</label><input id="hotel" placeholder="Ex.: Hotel em Porto de Galinhas">
+<label>Tipo de serviço</label>
+<select id="service" onchange="updateFields()">
+<option value="">Selecione...</option><option>Transfer</option><option>Half Day 4h</option><option>Half Day 6h</option><option>Full Day 8h</option><option>Full Day 10h</option><option>Noturno 4h</option><option>Noturno 6h</option><option>Outros serviços</option>
+</select>
+<div id="transferBox" class="hidden">
+<label>Destino</label><select id="destination">
+<option value="">Selecione...</option>
+<option>Apt Recife x Boa Viagem/Pina/Piedade/Centro</option>
+<option>Apt Recife x Olinda/TIP/Maria Farinha/Paulista</option>
+<option>Porto de Galinhas/Cabo/Serrambi/Itamaracá/Gravatá</option>
+<option>Tamandaré/Maragogi/João Pessoa/Caruaru</option>
+</select>
+</div>
+<div id="paxBox" class="grid">
+<div><label>Passageiros</label><input id="pax" type="number" min="1" placeholder="Ex.: 6"></div>
+<div><label>Idioma</label><select id="lang"><option>Português</option><option>Estrangeiro</option></select></div>
+</div>
+<div id="otherBox" class="hidden">
+<label>Outro serviço</label>
+<select id="other">
+<option value="Hospitality Desk|Diurno 8h|135">Hospitality Desk | Diurno 8h | R$ 135</option>
+<option value="Hospitality Desk|22h às 06h|170">Hospitality Desk | 22h às 06h | R$ 170</option>
+<option value="Hospitality Desk|Hora extra|25">Hospitality Desk | Hora extra | R$ 25</option>
+<option value="Coordenador|Diurno|200">Coordenador | Diurno | R$ 200</option>
+<option value="Coordenador|Noturno 22h às 06h|240">Coordenador | Noturno | R$ 240</option>
+<option value="Escola/Grupo Infantil|H/Day Micro-ônibus|160">Escola | H/Day Micro-ônibus | R$ 160</option>
+<option value="Escola/Grupo Infantil|H/Day Ônibus|180">Escola | H/Day Ônibus | R$ 180</option>
+<option value="Escola/Grupo Infantil|F/Day Micro-ônibus|220">Escola | F/Day Micro-ônibus | R$ 220</option>
+<option value="Escola/Grupo Infantil|F/Day Ônibus|275">Escola | F/Day Ônibus | R$ 275</option>
+<option value="Grupo de Navios|H/D até 6h Van|185">Navios | H/D até 6h Van | R$ 185</option>
+<option value="Grupo de Navios|H/D até 6h Micro até 30|220">Navios | H/D até 6h Micro | R$ 220</option>
+<option value="Grupo de Navios|H/D até 6h Ônibus|300">Navios | H/D até 6h Ônibus | R$ 300</option>
+<option value="Grupo de Navios|F/D até 8h Van|250">Navios | F/D até 8h Van | R$ 250</option>
+<option value="Grupo de Navios|F/D até 8h Micro até 30|265">Navios | F/D até 8h Micro | R$ 265</option>
+<option value="Grupo de Navios|F/D até 8h Ônibus|350">Navios | F/D até 8h Ônibus | R$ 350</option>
+<option value="Paixão/Festival|Manhã Van até 17 pax|275">Paixão/Festival | Manhã Van | R$ 275</option>
+<option value="Paixão/Festival|Manhã Micro até 30|298">Paixão/Festival | Manhã Micro | R$ 298</option>
+<option value="Paixão/Festival|Manhã Ônibus|360">Paixão/Festival | Manhã Ônibus | R$ 360</option>
+<option value="Paixão/Festival|Tarde Van|230">Paixão/Festival | Tarde Van | R$ 230</option>
+<option value="Paixão/Festival|Tarde Micro até 30|250">Paixão/Festival | Tarde Micro | R$ 250</option>
+<option value="Paixão/Festival|Tarde Ônibus|300">Paixão/Festival | Tarde Ônibus | R$ 300</option>
+<option value="Congresso|Português|200">Congresso | Português | R$ 200</option>
+<option value="Congresso|Idioma|220">Congresso | Idioma | R$ 220</option>
+<option value="Congresso|Hora extra Português|25">Congresso | Hora extra Português | R$ 25</option>
+<option value="Congresso|Hora extra Idioma|18">Congresso | Hora extra Idioma | R$ 18</option>
+<option value="Executivo|Português até 10h|185">Executivo | Português até 10h | R$ 185</option>
+<option value="Executivo|Idioma até 10h|200">Executivo | Idioma até 10h | R$ 200</option>
+<option value="Motorista|Sedan 8h|155">Motorista | Sedan 8h | R$ 155</option>
+<option value="Motorista|Van 8h|165">Motorista | Van 8h | R$ 165</option>
+</select>
+</div>
+<label>Motorista</label><input id="driver" placeholder="Nome do motorista">
+<label>Observações</label><textarea id="notes" placeholder="Informações adicionais"></textarea>
+<button class="yellow" onclick="calculate()">CALCULAR VALOR</button>
+<div id="result" class="result hidden"></div>
+</div>
+</section>
+
+<section id="escala" class="tab">
+<div class="card">
+<h2>📋 Minha Escala</h2>
+<p class="muted">Organize os serviços do dia e veja quanto você tem a receber.</p>
+<div id="scaleList"></div>
+<div class="total">Total: <span id="total">R$ 0,00</span></div>
+<div class="actions" style="margin-top:12px">
+<button onclick="shareScale()">📲 WhatsApp</button><button class="light" onclick="clearScale()">Limpar</button>
+</div>
+</div>
+</section>
+
+<section id="hist" class="tab">
+<div class="card">
+<h2>🗓️ Histórico</h2>
+<p class="muted">As escalas ficam salvas neste aparelho.</p>
+<div id="history"></div>
+</div>
+</section>
+
+<section id="tar" class="tab">
+<div class="card">
+<h2>📚 Tarifário MARTUR 2022</h2>
+<div style="overflow:auto"><table><thead><tr><th>Serviço</th><th>01-06 PT</th><th>01-06 Estr.</th><th>07-15 PT</th><th>07-15 Estr.</th><th>16-30 PT</th><th>16-30 Estr.</th><th>+30 PT</th><th>+30 Estr.</th></tr></thead><tbody id="tariff"></tbody></table></div>
+</div>
+</section>
+</main>
+
+<script>
+const T={
+Transfer:{
+"Apt Recife x Boa Viagem/Pina/Piedade/Centro":[30,40,38,48,50,65,65,85],
+"Apt Recife x Olinda/TIP/Maria Farinha/Paulista":[50,65,65,78,75,90,95,120],
+"Porto de Galinhas/Cabo/Serrambi/Itamaracá/Gravatá":[65,75,68,81,84,100,110,130],
+"Tamandaré/Maragogi/João Pessoa/Caruaru":[85,100,95,115,110,130,135,165]},
+"Half Day 4h":{"":[60,75,70,85,94,115,110,135]},
+"Half Day 6h":{"":[72,84,90,110,135,165,165,185]},
+"Full Day 8h":{"":[90,120,95,125,145,175,185,220]},
+"Full Day 10h":{"":[110,135,120,145,175,210,220,250]},
+"Noturno 4h":{"":[75,88,85,100,110,135,145,165]},
+"Noturno 6h":{"":[83,100,115,120,150,175,190,230]}
+};
+const money=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const today=new Date().toISOString().slice(0,10); date.value=today;
+let scale=JSON.parse(localStorage.getItem("marturScale")||"[]");
+let history=JSON.parse(localStorage.getItem("marturHistory")||"[]");
+
+function showTab(id,btn){document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));btn.classList.add("active");if(id==="escala")renderScale();if(id==="hist")renderHistory()}
+function updateFields(){let s=service.value;transferBox.classList.toggle("hidden",s!=="Transfer");paxBox.classList.toggle("hidden",s==="Outros serviços"||!s);otherBox.classList.toggle("hidden",s!=="Outros serviços")}
+function bracket(n){return n<=6?"01 a 06":n<=15?"07 a 15":n<=30?"16 a 30":"Acima de 30"}
+function idx(n,l){return (n<=6?0:n<=15?2:n<=30?4:6)+(l==="Português"?0:1)}
+function calculate(){
+ let s=service.value,value=0,detail="";
+ if(!s)return alert("Selecione o serviço.");
+ if(s==="Outros serviços"){let [a,b,v]=other.value.split("|");value=+v;detail=a+" | "+b}
+ else{
+  let n=+pax.value;if(!n)return alert("Informe os passageiros.");
+  let key=s==="Transfer"?destination.value:"";if(s==="Transfer"&&!key)return alert("Selecione o destino.");
+  value=T[s][key][idx(n,lang.value)];
+  detail=s+(key?" | "+key:"")+" | "+n+" pax | "+lang.value+" | Faixa "+bracket(n)
+ }
+ const data={date:date.value,time:time.value,client:client.value,hotel:hotel.value,driver:driver.value,notes:notes.value,desc:detail,value};
+ result.innerHTML=`<span class="badge">VALOR CALCULADO</span><p>${detail}</p><div class="price">${money(value)}</div><div class="actions"><button onclick='addToScale(${JSON.stringify(data)})'>➕ Adicionar à escala</button></div>`;
+ result.classList.remove("hidden");
+}
+function addToScale(x){scale.push(x);localStorage.setItem("marturScale",JSON.stringify(scale));showTab("escala",document.querySelectorAll(".nav button")[1]);renderScale()}
+function renderScale(){
+ let total=0;scaleList.innerHTML="";
+ scale.forEach((x,i)=>{total+=x.value;scaleList.innerHTML+=`<div class="item"><strong>${x.time||"--:--"} • ${x.desc}</strong><br>${x.client?`Cliente: ${x.client}<br>`:""}${x.hotel?`Hotel: ${x.hotel}<br>`:""}${x.driver?`Motorista: ${x.driver}<br>`:""}<strong>${money(x.value)}</strong><br><button class="red smallbtn" onclick="removeScale(${i})">Excluir</button></div>`});
+ totalEl=total;document.getElementById("total").textContent=money(total)
+}
+function removeScale(i){scale.splice(i,1);localStorage.setItem("marturScale",JSON.stringify(scale));renderScale()}
+function clearScale(){if(!scale.length)return;if(confirm("Limpar a escala atual?")){history.push({date:today,items:scale,total:scale.reduce((a,b)=>a+b.value,0)});localStorage.setItem("marturHistory",JSON.stringify(history));scale=[];localStorage.removeItem("marturScale");renderScale();renderHistory()}}
+function shareScale(){
+ if(!scale.length)return alert("A escala está vazia.");
+ let text="📋 MARTUR GUIA CALC\nESCALA DO DIA\n\n";scale.forEach(x=>text+=`⏰ ${x.time||"--:--"}\n${x.desc}\n${x.client?"Cliente: "+x.client+"\n":""}💰 ${money(x.value)}\n\n`);
+ text+="TOTAL: "+document.getElementById("total").textContent;
+ if(navigator.share)navigator.share({title:"Escala Martur",text});else navigator.clipboard.writeText(text).then(()=>alert("Resumo copiado. Cole no WhatsApp."));
+}
+function renderHistory(){historyEl=document.getElementById("history");historyEl.innerHTML=history.length?history.slice().reverse().map((h,i)=>`<div class="item"><strong>${h.date}</strong><br>${h.items.length} serviço(s) • <strong>${money(h.total)}</strong></div>`).join(""):"<p class='muted'>Nenhuma escala arquivada ainda.</p>"}
+function fillTariff(){
+ let out="";Object.entries(T).forEach(([s,d])=>Object.entries(d).forEach(([dest,v])=>out+=`<tr><td>${s}${dest?" | "+dest:""}</td>${v.map(x=>`<td>${money(x)}</td>`).join("")}</tr>`));tariff.innerHTML=out
+}
+updateFields();renderScale();renderHistory();fillTariff();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
