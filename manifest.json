@@ -1,0 +1,12 @@
+{
+  "name": "Martur Guia Calc",
+  "short_name": "Martur Calc",
+  "description": "Calculadora de serviços para guia de turismo com base no Tarifário MARTUR 2022.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#18264a",
+  "lang": "pt-BR",
+  "orientation": "portrait",
+  "icons": []
+}
